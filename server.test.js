@@ -1,8 +1,49 @@
 const request = require('supertest');
 const app = require('./server');
-const { docClient, s3Client, tableName, bucketName } = require('./aws-config');
+const { dynamodbClient, docClient, s3Client, tableName, bucketName } = require('./aws-config');
+const { CreateTableCommand, DescribeTableCommand } = require('@aws-sdk/client-dynamodb');
+const { CreateBucketCommand, HeadBucketCommand } = require('@aws-sdk/client-s3');
 const { DeleteCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
 const { DeleteObjectCommand, ListObjectsV2Command } = require('@aws-sdk/client-s3');
+
+// Initialize AWS resources for tests
+async function initializeAWSForTests() {
+  try {
+    // Create DynamoDB table if it doesn't exist
+    try {
+      await dynamodbClient.send(new DescribeTableCommand({ TableName: tableName }));
+    } catch (error) {
+      if (error.name === 'ResourceNotFoundException') {
+        await dynamodbClient.send(new CreateTableCommand({
+          TableName: tableName,
+          KeySchema: [
+            { AttributeName: 'id', KeyType: 'HASH' }
+          ],
+          AttributeDefinitions: [
+            { AttributeName: 'id', AttributeType: 'S' }
+          ],
+          BillingMode: 'PAY_PER_REQUEST'
+        }));
+        // Wait for table to be ready
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+
+    // Create S3 bucket if it doesn't exist
+    try {
+      await s3Client.send(new HeadBucketCommand({ Bucket: bucketName }));
+    } catch (error) {
+      if (error.name === 'NotFound' || error.$metadata?.httpStatusCode === 404) {
+        await s3Client.send(new CreateBucketCommand({ Bucket: bucketName }));
+        // Wait for bucket to be ready
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+  } catch (error) {
+    console.error('Error initializing AWS resources for tests:', error);
+    throw error;
+  }
+}
 
 // Helper function to clear DynamoDB table
 async function clearDynamoDB() {
@@ -38,8 +79,14 @@ async function clearS3() {
   }
 }
 
-describe('REST API Tests', () => {
+describe('REST API Tests with AWS Integration', () => {
   let createdItemId;
+
+  jest.setTimeout(30000);
+
+  beforeAll(async () => {
+    await initializeAWSForTests();
+  });
 
   beforeEach(async () => {
     await clearDynamoDB();

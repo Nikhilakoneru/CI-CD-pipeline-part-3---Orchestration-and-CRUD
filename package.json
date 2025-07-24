@@ -1,11 +1,11 @@
 {
   "name": "simple-rest-api",
   "version": "1.0.0",
-  "description": "basic rest api",
+  "description": "REST API with dynamoDB and S3 integrations",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "jest"
+    "test": "jest --forceExit --detectOpenHandles"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.848.0",
