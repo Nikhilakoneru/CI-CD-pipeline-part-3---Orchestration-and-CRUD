@@ -104,3 +104,27 @@ Tests run automatically on:
 
 - API runs on http://localhost:3000
 - LocalStack runs on http://localhost:4566
+
+## References
+
+### External Resources Used
+
+1. **Express.js - Routing Guide**  
+   https://expressjs.com/en/guide/routing.html  
+   Used for implementing REST API endpoints
+
+2. **Jest - Getting Started & Writing Tests**  
+   https://jestjs.io/docs/getting-started  
+   Used for writing and running automated API tests
+
+3. **LocalStack - AWS Service Emulation**  
+   https://docs.localstack.cloud/user-guide/aws/  
+   Used for emulating DynamoDB and S3 services locally
+
+4. **AWS DynamoDB DocumentClient**  
+   https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html  
+   Used for database operations
+
+5. **AWS S3 API Reference**  
+   https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html  
+   Used for object storage operations
